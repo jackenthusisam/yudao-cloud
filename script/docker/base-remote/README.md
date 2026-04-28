@@ -30,6 +30,8 @@ The service images use Eclipse Temurin 17 JRE as the runtime.
 | `MYSQL_HOST_PORT` | `13306` | Host port for this project's MySQL container |
 | `REDIS_HOST_PORT` | `26379` | Host port for this project's Redis container |
 
+The compose file keeps memory lower than the upstream defaults so it can coexist with other services on a small x86 server.
+
 ## Copy to the server
 
 ```bash
