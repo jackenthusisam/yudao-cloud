@@ -10,7 +10,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-ruoyi-vue-pro}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:${MYSQL_HOST_PORT:-13306}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ../../../sql/mysql/ruoyi-vue-pro.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -20,6 +20,9 @@ services:
       - --collation-server=utf8mb4_general_ci
       - --explicit_defaults_for_timestamp=true
       - --lower_case_table_names=1
+      - --performance_schema=OFF
+      - --innodb-buffer-pool-size=128M
+      - --max-connections=100
     healthcheck:
       test: [ "CMD-SHELL", "mysqladmin ping -uroot -p$${MYSQL_ROOT_PASSWORD} --silent" ]
       interval: 10s
@@ -27,12 +30,12 @@ services:
       retries: 12
 
   redis:
-    image: redis:7.2-alpine
+    image: redis:7.2
     container_name: yudao-redis
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_HOST_PORT:-26379}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -42,17 +45,20 @@ services:
       retries: 12
 
   nacos:
-    image: nacos/nacos-server:v2.3.2
+    image: nacos/nacos-server:v2.4.2
     container_name: yudao-nacos
     restart: unless-stopped
     environment:
       MODE: standalone
-      NACOS_AUTH_ENABLE: "true"
+      NACOS_AUTH_ENABLE: "false"
       NACOS_AUTH_IDENTITY_KEY: yudao
       NACOS_AUTH_IDENTITY_VALUE: yudao
       NACOS_AUTH_TOKEN: eXVkYW8tY2xvdWQtZGV2LW5hY29zLXNlY3JldC1rZXktMzItYnl0ZXMtY2hhbmdlLW1l
       NACOS_AUTH_TOKEN_EXPIRE_SECONDS: 18000
       NACOS_AUTH_CACHE_ENABLE: "false"
+      JVM_XMS: 256m
+      JVM_XMX: 512m
+      JVM_XMN: 128m
     ports:
       - "8848:8848"
       - "9848:9848"
@@ -74,9 +80,10 @@ services:
       SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: 127.0.0.1:8848
       SPRING_CLOUD_NACOS_USERNAME: ${NACOS_USERNAME:-nacos}
       SPRING_CLOUD_NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
-      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-dev}
-      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-dev}
+      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-}
+      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-}
       SPRING_CLOUD_NACOS_DISCOVERY_IP: ${SERVER_IP:-8.141.17.93}
+      JAVA_OPTS: -Xms128m -Xmx256m -XX:MaxMetaspaceSize=160m
     volumes:
       - /docker/yudao-cloud/logs:/root/logs
     depends_on:
@@ -95,19 +102,20 @@ services:
       SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: 127.0.0.1:8848
       SPRING_CLOUD_NACOS_USERNAME: ${NACOS_USERNAME:-nacos}
       SPRING_CLOUD_NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
-      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-dev}
-      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-dev}
+      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-}
+      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-}
       SPRING_CLOUD_NACOS_DISCOVERY_IP: ${SERVER_IP:-8.141.17.93}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       SPRING_REDIS_HOST: 127.0.0.1
-      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PORT: ${REDIS_HOST_PORT:-26379}
       SPRING_REDIS_DATABASE: 0
       XXL_JOB_ENABLED: "false"
+      JAVA_OPTS: -Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m
     volumes:
       - /docker/yudao-cloud/logs:/root/logs
     depends_on:
@@ -130,19 +138,20 @@ services:
       SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR: 127.0.0.1:8848
       SPRING_CLOUD_NACOS_USERNAME: ${NACOS_USERNAME:-nacos}
       SPRING_CLOUD_NACOS_PASSWORD: ${NACOS_PASSWORD:-nacos}
-      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-dev}
-      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-dev}
+      SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-}
+      SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-}
       SPRING_CLOUD_NACOS_DISCOVERY_IP: ${SERVER_IP:-8.141.17.93}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       SPRING_REDIS_HOST: 127.0.0.1
-      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PORT: ${REDIS_HOST_PORT:-26379}
       SPRING_REDIS_DATABASE: 0
       XXL_JOB_ENABLED: "false"
+      JAVA_OPTS: -Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m
     volumes:
       - /docker/yudao-cloud/logs:/root/logs
     depends_on:
