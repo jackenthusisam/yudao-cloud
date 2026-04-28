@@ -66,8 +66,6 @@ SPRING_CLOUD_NACOS_SERVER_ADDR=8.141.17.93:8848
 SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=8.141.17.93:8848
 SPRING_CLOUD_NACOS_USERNAME=nacos
 SPRING_CLOUD_NACOS_PASSWORD=nacos
-SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE=dev
-SPRING_CLOUD_NACOS_CONFIG_NAMESPACE=dev
 ```
 
 If the remote gateway must route traffic to your local module, the server must be able to reach your local machine. Use a VPN, Tailscale, frp, or an SSH reverse tunnel; otherwise only local-to-remote calls will work.

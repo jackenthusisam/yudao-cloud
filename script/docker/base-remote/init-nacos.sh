@@ -4,7 +4,12 @@ set -euo pipefail
 NACOS_ADDR="${NACOS_ADDR:-http://127.0.0.1:8848}"
 NACOS_USERNAME="${NACOS_USERNAME:-nacos}"
 NACOS_PASSWORD="${NACOS_PASSWORD:-nacos}"
-NACOS_NAMESPACE="${NACOS_NAMESPACE:-dev}"
+NACOS_NAMESPACE="${NACOS_NAMESPACE:-}"
+
+if [ -z "${NACOS_NAMESPACE}" ]; then
+  echo "Using Nacos public namespace."
+  exit 0
+fi
 
 token="$(
   curl -fsS -X POST "${NACOS_ADDR}/nacos/v1/auth/users/login" \
