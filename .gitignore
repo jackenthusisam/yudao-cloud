@@ -62,6 +62,7 @@ package-lock.json
 .history
 *.log
 .env
+.claude/settings.local.json
 
 functions/mock
 .temp/**

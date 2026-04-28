@@ -1,0 +1,94 @@
+spring:
+  application:
+    name: mcp-server
+
+  profiles:
+    active: local
+
+  main:
+    allow-circular-references: true
+    allow-bean-definition-overriding: true
+
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.autoconfigure.data.redis.RedisAutoConfiguration
+      - org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoConfiguration
+      - org.redisson.spring.starter.RedissonAutoConfigurationV2
+      - org.mybatis.spring.boot.autoconfigure.MybatisAutoConfiguration
+      - com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration
+      - cn.iocoder.yudao.framework.web.config.YudaoWebAutoConfiguration
+      - cn.iocoder.yudao.framework.swagger.config.YudaoSwaggerAutoConfiguration
+      - cn.iocoder.yudao.framework.apilog.config.YudaoApiLogAutoConfiguration
+      - cn.iocoder.yudao.framework.xss.config.YudaoXssAutoConfiguration
+      - cn.iocoder.yudao.framework.security.config.YudaoSecurityRpcAutoConfiguration
+      - cn.iocoder.yudao.framework.security.config.YudaoSecurityAutoConfiguration
+      - cn.iocoder.yudao.framework.security.config.YudaoWebSecurityConfigurerAdapter
+      - cn.iocoder.yudao.framework.redis.config.YudaoRedisAutoConfiguration
+      - cn.iocoder.yudao.framework.redis.config.YudaoCacheAutoConfiguration
+      - cn.iocoder.yudao.framework.common.config.YudaoCommonAutoConfiguration
+      - cn.iocoder.yudao.framework.tenant.config.YudaoTenantAutoConfiguration
+      - cn.iocoder.yudao.framework.quartz.config.YudaoQuartzAutoConfiguration
+
+server:
+  port: 48100
+
+logging:
+  file:
+    name: ${user.home}/logs/${spring.application.name}.log
+
+yudao:
+  info:
+    base-package: cn.iocoder.yudao.module.mcp.server
+
+--- #################### Nacos 配置 ####################
+
+spring:
+  cloud:
+    nacos:
+      username: nacos
+      password: nacos
+      config:
+        server-addr: 8.141.17.93:8848
+        namespace: dev
+        group: DEFAULT_GROUP
+        file-extension: yaml
+      discovery:
+        server-addr: 8.141.17.93:8848
+        namespace: dev
+        group: DEFAULT_GROUP
+
+--- #################### MCP Server 配置 ####################
+
+spring:
+  ai:
+    mcp:
+      server:
+        enabled: true  # 启用 Spring AI MCP Server
+        name: yudao-mcp-server
+        version: 1.0.0
+        instructions: 芋道云 MCP 服务，提供会员、商品、订单等业务 API 的调用能力
+        stdio: false
+        sse-message-endpoint: /mcp/sse/message
+      client:
+        enabled: false
+
+yudao:
+  mcp:
+    server:
+      enabled: true
+      name: yudao-mcp-server
+      version: 1.0.0
+      instructions: 芋道云 MCP 服务，提供会员、商品、订单等业务 API 的调用能力
+      sse-endpoint: /mcp/sse
+      http-endpoint: /mcp/http
+      # API Key 配置（Key: API Key 值，Value: 对应的租户编号）
+      # 多个租户可以配置不同的 API Key，实现租户隔离
+      api-keys:
+        your-api-key-for-tenant-1: 1
+        your-api-key-for-tenant-2: 2
+
+--- #################### 租户配置 ####################
+
+yudao:
+  tenant:
+    enable: false
