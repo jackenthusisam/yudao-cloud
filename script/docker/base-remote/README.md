@@ -6,7 +6,7 @@ This package runs the base services used for local module development:
 - Gateway: `8.141.17.93:48080`
 - System service: `8.141.17.93:48081`
 - Infra service: `8.141.17.93:48082`
-- MySQL and Redis are bound to `127.0.0.1` on the server by default.
+- MySQL and Redis are bound to `127.0.0.1` on the server by default: MySQL `13306`, Redis `26379`.
 
 ## Build images
 
@@ -21,6 +21,13 @@ docker buildx build --platform linux/amd64 -t yudao-module-infra-server:base --l
 ```
 
 The service images use Eclipse Temurin 17 JRE as the runtime.
+
+## Ports
+
+| Name | Default | Note |
+| --- | --- | --- |
+| `MYSQL_HOST_PORT` | `13306` | Host port for this project's MySQL container |
+| `REDIS_HOST_PORT` | `26379` | Host port for this project's Redis container |
 
 ## Copy to the server
 

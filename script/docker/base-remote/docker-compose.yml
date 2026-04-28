@@ -10,7 +10,7 @@ services:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-ruoyi-vue-pro}
     ports:
-      - "127.0.0.1:3306:3306"
+      - "127.0.0.1:${MYSQL_HOST_PORT:-13306}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ../../../sql/mysql/ruoyi-vue-pro.sql:/docker-entrypoint-initdb.d/init.sql:ro
@@ -32,7 +32,7 @@ services:
     restart: unless-stopped
     command: redis-server --appendonly yes
     ports:
-      - "127.0.0.1:6379:6379"
+      - "127.0.0.1:${REDIS_HOST_PORT:-26379}:6379"
     volumes:
       - redis-data:/data
     healthcheck:
@@ -98,14 +98,14 @@ services:
       SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-dev}
       SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-dev}
       SPRING_CLOUD_NACOS_DISCOVERY_IP: ${SERVER_IP:-8.141.17.93}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       SPRING_REDIS_HOST: 127.0.0.1
-      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PORT: ${REDIS_HOST_PORT:-26379}
       SPRING_REDIS_DATABASE: 0
       XXL_JOB_ENABLED: "false"
     volumes:
@@ -133,14 +133,14 @@ services:
       SPRING_CLOUD_NACOS_DISCOVERY_NAMESPACE: ${NACOS_NAMESPACE:-dev}
       SPRING_CLOUD_NACOS_CONFIG_NAMESPACE: ${NACOS_NAMESPACE:-dev}
       SPRING_CLOUD_NACOS_DISCOVERY_IP: ${SERVER_IP:-8.141.17.93}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_MASTER_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
-      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:3306/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
+      SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_URL: jdbc:mysql://127.0.0.1:${MYSQL_HOST_PORT:-13306}/${MYSQL_DATABASE:-ruoyi-vue-pro}?useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&rewriteBatchedStatements=true
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_USERNAME: root
       SPRING_DATASOURCE_DYNAMIC_DATASOURCE_SLAVE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-123456}
       SPRING_REDIS_HOST: 127.0.0.1
-      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_PORT: ${REDIS_HOST_PORT:-26379}
       SPRING_REDIS_DATABASE: 0
       XXL_JOB_ENABLED: "false"
     volumes:
