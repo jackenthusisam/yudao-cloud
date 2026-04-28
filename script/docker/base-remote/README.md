@@ -20,6 +20,8 @@ docker buildx build --platform linux/amd64 -t yudao-module-system-server:base --
 docker buildx build --platform linux/amd64 -t yudao-module-infra-server:base --load yudao-module-infra/yudao-module-infra-server
 ```
 
+The service images use Eclipse Temurin 17 JRE as the runtime.
+
 ## Copy to the server
 
 ```bash
