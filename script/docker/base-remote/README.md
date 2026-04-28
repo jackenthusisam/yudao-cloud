@@ -64,8 +64,49 @@ Run your new local module with these environment variables so it uses the remote
 SPRING_PROFILES_ACTIVE=dev
 SPRING_CLOUD_NACOS_SERVER_ADDR=8.141.17.93:8848
 SPRING_CLOUD_NACOS_CONFIG_SERVER_ADDR=8.141.17.93:8848
-SPRING_CLOUD_NACOS_USERNAME=nacos
-SPRING_CLOUD_NACOS_PASSWORD=nacos
 ```
 
+Nacos auth is disabled in this development deployment, so do not set Nacos username or password unless the server-side Nacos auth mode is changed later.
+
+Local modules should normally use the remote Nacos, MySQL, Redis, system, infra, and gateway services. Start only the module you are developing locally, and let it register itself to the remote Nacos instance.
+
 If the remote gateway must route traffic to your local module, the server must be able to reach your local machine. Use a VPN, Tailscale, frp, or an SSH reverse tunnel; otherwise only local-to-remote calls will work.
+
+## Local frontend settings
+
+Point the local admin frontend to the remote gateway:
+
+```bash
+VITE_BASE_URL=http://8.141.17.93:48080
+VITE_BASE_API=/admin-api
+```
+
+The final API base should be `http://8.141.17.93:48080/admin-api`. Do not rewrite `/admin-api` away in the local dev proxy, otherwise requests such as `/system/tenant/simple-list` will miss the gateway route and return `No static resource ...`.
+
+Default development login:
+
+| Field | Value |
+| --- | --- |
+| Tenant | Default tenant / 芋道源码 |
+| Username | `admin` |
+| Password | `admin123` |
+
+For this remote development deployment, `system` disables captcha with `YUDAO_CAPTCHA_ENABLE=false`. If captcha is enabled again, the frontend login request must include `captchaVerification`.
+
+## Deployment plan
+
+Use the machines as follows:
+
+| Machine | Role | Long-running services |
+| --- | --- | --- |
+| Cloud server `8.141.17.93` | Shared remote base environment | MySQL, Redis, Nacos, Gateway, System, Infra |
+| x86 laptop `192.168.31.5` | Heavy build worker | JDK 17 Maven builds and amd64 image builds |
+| ARM development machine | Daily coding and debugging | Frontend and the single backend module under development |
+
+Recommended startup order:
+
+1. Keep MySQL, Redis, and Nacos running first.
+2. Start `system` and `infra` after database and Redis are healthy.
+3. Start `gateway` after Nacos is healthy so it can discover remote and local modules.
+4. Start only the module currently under development on the ARM machine, connected to remote Nacos.
+5. Start the local frontend and send all admin API traffic to the remote gateway.

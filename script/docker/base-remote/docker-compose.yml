@@ -110,6 +110,7 @@ services:
       SPRING_DATA_REDIS_HOST: 127.0.0.1
       SPRING_DATA_REDIS_PORT: ${REDIS_HOST_PORT:-26379}
       SPRING_DATA_REDIS_DATABASE: 0
+      YUDAO_CAPTCHA_ENABLE: "false"
       XXL_JOB_ENABLED: "false"
       JAVA_OPTS: -Xms256m -Xmx512m -XX:MaxMetaspaceSize=256m
     volumes:
