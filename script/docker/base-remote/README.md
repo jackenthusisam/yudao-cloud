@@ -7,6 +7,7 @@ This package runs the base services used for local module development:
 - System service: `8.141.17.93:48081`
 - Infra service: `8.141.17.93:48082`
 - MySQL and Redis are bound to `127.0.0.1` on the server by default: MySQL `13306`, Redis `26379`.
+- The compose file reuses server-side base images: `mysql:8.0.33`, `redis:7.2`, `nacos/nacos-server:v2.4.2`.
 
 ## Build images
 
